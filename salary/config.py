@@ -32,7 +32,6 @@ class SalaryConfig(object):
         conf = {}
         # 项目名称
         conf[contants.PRO_NAME_KEY_NAME] = settings.proname
-        conf['NAME'] = settings.name
         return conf
 
     def get_config_dict(self):
