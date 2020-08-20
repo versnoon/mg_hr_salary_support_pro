@@ -32,9 +32,11 @@ class SalaryConfig(object):
         conf = {}
         # 项目名称
         conf[contants.PRO_NAME_KEY_NAME] = settings.proname
+        conf[contants.LOGGING_NAME_KEY_NAME] = settings.logging_name
+        conf[contants.LOGGING_LEVEL_KEY_NAME] = settings.logging_level
         return conf
 
-    def get_config_dict(self):
+    def __get_config_dict(self):
         '''返回所有已配置参数信息
         '''
         return self._confs
@@ -44,4 +46,22 @@ class SalaryConfig(object):
         '''
         if not key in self._confs:
             raise KeyError(f'配置项{key}不存在')
-        return self.get_config_dict().get(key)
+        return self.__get_config_dict().get(key)
+
+    
+    def contains(self,key):
+        return key in self._confs
+    
+    def config_size(self):
+        return len(self._confs)
+
+
+    def get_pro_name(self):
+        return self.get_config_val(contants.PRO_NAME_KEY_NAME)
+    
+    def get_logging_name(self):
+        return self.get_config_val(contants.LOGGING_NAME_KEY_NAME)
+
+    
+    def get_logging_level(self):
+        return self.get_config_val(contants.LOGGING_LEVEL_KEY_NAME)

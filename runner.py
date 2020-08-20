@@ -8,8 +8,12 @@
 @Contact :   raogx.vip@hotmail.com
 '''
 
-from salary.config import settings
+from salary.logging import SalaryLogging
+from salary.config import SalaryConfig
 
 if __name__ == "__main__":
     #  eg app.run(相关配置)
-    print(settings.name)
+    logger = SalaryLogging(SalaryConfig()).getLogger()
+    logger.error('sys err')
+    logger.info('sys info')
+    logger.debug('sys debug')

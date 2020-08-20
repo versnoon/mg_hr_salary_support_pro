@@ -4,5 +4,6 @@ __pycache__
 build
 dist
 *.spec
+*.log
 # Ignore dynaconf secret files
 .secrets.*

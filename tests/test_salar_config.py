@@ -20,9 +20,9 @@ class TestSalaryConfig(object):
     def test_config_create_with_default(self):
         conf = SalaryConfig()
         # default settings
-        assert len(conf.get_config_dict()) > 0
-        assert contants.PRO_NAME_KEY_NAME in conf.get_config_dict()
-        assert conf.get_config_dict().get(contants.PRO_NAME_KEY_NAME) == 'salary_support_pro'
+        assert conf.config_size() > 0
+        assert conf.contains(contants.PRO_NAME_KEY_NAME)
+        assert conf.get_pro_name() == 'salary_support_pro'
     
 
     def test_get_conf_val_with_keyerror(self):
@@ -32,7 +32,15 @@ class TestSalaryConfig(object):
 
     def test_get_conf_val(self):
         conf = SalaryConfig()
-        assert conf.get_config_dict().get(contants.PRO_NAME_KEY_NAME) == 'salary_support_pro'
+        assert conf.get_pro_name() == 'salary_support_pro'
+    
+    def test_get_logging_name(self):
+        conf = SalaryConfig()
+        assert conf.get_logging_name() == 'salary_support_logging'
+    
+    def test_get_logging_level(self):
+        conf = SalaryConfig()
+        assert conf.get_logging_level() == 'DEBUG'
 
 
 

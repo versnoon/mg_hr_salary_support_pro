@@ -1,1 +1,4 @@
 proname = 'salary_support_pro'
+logging_name = 'salary_support_logging'
+logging_level = 'DEBUG'
+logging_filename = 'logs'

@@ -10,3 +10,7 @@
 
 
 PRO_NAME_KEY_NAME='PRONAME'
+
+# 默认日志名称
+LOGGING_NAME_KEY_NAME='logging_name'
+LOGGING_LEVEL_KEY_NAME='logging_level'
