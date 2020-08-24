@@ -16,10 +16,7 @@ class TestSalaryLogging():
     '''
 
     def test_create_logger(self):
-        config = SalaryConfig()
-        logger = SalaryLogging(config).getLogger()
-        assert logger is not None
-        assert logger.name == 'salary_support_logging'
+        logging = SalaryLogging(SalaryConfig())
+        assert logging is not None
+        assert logging.getLogger().name == 'salary_support_logging'
 
-    def test_logging_filename(self):
-       assert SalaryLogging.get_Logging_filename() == '2020-08-20-logs.log'    

@@ -1,9 +1,11 @@
 .venv
 .vscode
 __pycache__
+.pytest_cache
 build
 dist
 *.spec
 *.log
+*.xls
 # Ignore dynaconf secret files
 .secrets.*

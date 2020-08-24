@@ -14,8 +14,8 @@ from dynaconf import Dynaconf
 
 
 settings = Dynaconf(
-    envvar_prefix="SALARY_SUPPORT",
     settings_files=['salary/settings.toml'],
+    load_dotenv=True,
 )
 
 
@@ -30,10 +30,8 @@ class SalaryConfig(object):
 
     def default_settings(self) -> dict:
         conf = {}
-        # 项目名称
-        conf[contants.PRO_NAME_KEY_NAME] = settings.proname
-        conf[contants.LOGGING_NAME_KEY_NAME] = settings.logging_name
-        conf[contants.LOGGING_LEVEL_KEY_NAME] = settings.logging_level
+        for k,v in settings.as_dict().items():
+            conf[k.lower()] = v
         return conf
 
     def __get_config_dict(self):
@@ -65,3 +63,9 @@ class SalaryConfig(object):
     
     def get_logging_level(self):
         return self.get_config_val(contants.LOGGING_LEVEL_KEY_NAME)
+
+    def get_tpl_gz_filename(self):
+        return f'{self.get_config_val(contants.TPL_GZ_FILENAME_KEY_NAME)}.{self.get_config_val(contants.TPL_GZ_FILENAME_EXT_KEY_NAME)}'
+
+    def get_tpl_root_folder_name(self):
+        return self.get_config_val(contants.TPL_ROOT_FOLDER_NAME_KEY_NAME)

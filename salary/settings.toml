@@ -2,3 +2,9 @@ proname = 'salary_support_pro'
 logging_name = 'salary_support_logging'
 logging_level = 'DEBUG'
 logging_filename = 'logs'
+
+
+tpl_root_folder_name = '宝武EHR数据'
+tpl_gz_filename = '工资数据'
+# 默认excel 2003 格式
+tpl_gz_filename_ext = 'xls'

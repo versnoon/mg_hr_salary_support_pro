@@ -17,16 +17,15 @@ from salary.config import SalaryConfig
 class SalaryLogging(object):
     '''日志模块抽象类
     '''
-    logger = None
 
-    def __init__(self,salary_conf:type(SalaryConfig)):
-        assert salary_conf is not None
-        if SalaryLogging.logger == None:
-            SalaryLogging.logger = self.__init_logging(salary_conf)
+    def __init__(self,config:type(SalaryConfig)):
+        assert config is not None
+        self.logger = self.__init_logging(config)
+        
 
     def __init_logging(self,config:type(SalaryConfig)):
         logger = logging.getLogger(config.get_logging_name())
-        logger.setLevel(config.get_logging_level())
+        logger.setLevel(logging.DEBUG)
         # 创建一个FileHandler，用于写到本地
         fh = logging.FileHandler(self.get_Logging_filename(), 'a', encoding='utf-8') 
         fh.setLevel(config.get_logging_level())
@@ -37,43 +36,15 @@ class SalaryLogging(object):
         ch.setLevel(logging.DEBUG)
         ch.setFormatter(logging.Formatter('[%(asctime)s] - %(filename)s] - %(levelname)s: %(message)s'))
         logger.addHandler(ch)
-
         
         return logger
 
-    @staticmethod
-    def get_Logging_filename():
+    def get_Logging_filename(self):
         return '%s-logs.log' % time.strftime('%Y-%m-%d')
 
-    @staticmethod
-    def getLogger():
-        return SalaryLogging.logger
+    def getLogger(self):
+        return self.logger
 
-    def error(self, msg):
-        log = SalaryLogging.getLogger()
-        log.error(msg)
-
-    def warn(self, msg):
-        log = SalaryLogging.getLogger()
-        log.warning(msg)
-
-    def info(self, msg):
-        log = SalaryLogging.getLogger()
-        log.info(msg)
-
-    def debug(self, msg):
-        log = SalaryLogging.getLogger()
-        log.debug(msg)
-
-    def exception(self, msg):
-        """
-        打印堆栈信息
-        :param msg:
-        :param name:
-        :return:
-        """
-        log = SalaryLogging.getLogger()
-        log.exception(msg)
 
 
     

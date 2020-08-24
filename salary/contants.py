@@ -9,8 +9,15 @@
 '''
 
 
-PRO_NAME_KEY_NAME='PRONAME'
+PRO_NAME_KEY_NAME='proname'
 
 # 默认日志名称
 LOGGING_NAME_KEY_NAME='logging_name'
 LOGGING_LEVEL_KEY_NAME='logging_level'
+
+
+# 模板相关定义
+TPL_GZ_FILENAME_KEY_NAME = 'tpl_gz_filename'
+TPL_GZ_FILENAME_EXT_KEY_NAME = 'tpl_gz_filename_ext'
+TPL_ROOT_FOLDER_NAME_KEY_NAME = 'tpl_root_folder_name'
+
