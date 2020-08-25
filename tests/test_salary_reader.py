@@ -29,7 +29,7 @@ class TestSalaryReader(object):
 
     def test_get_file_cols(self):
         op = GzOperator(SalaryConfig())
-        wb = op.readfile()
+        wb = op.readfile(op.get_file_path(op.conf.get_tpl_root_folder_name(),op.conf.get_tpl_gz_filename()))
         assert wb is not None
         cols = op.get_column_names(wb.sheet_by_index(0),op.colnames_index)
         assert cols is not None
@@ -38,7 +38,7 @@ class TestSalaryReader(object):
 
     def test_get_file_items(self):
         op = GzOperator(SalaryConfig())
-        wb = op.readfile()
+        wb = op.readfile(op.get_file_path(op.conf.get_tpl_root_folder_name(),op.conf.get_tpl_gz_filename()))
         assert wb is not None
         sh_0 = wb.sheet_by_index(0)
         assert sh_0 is not None

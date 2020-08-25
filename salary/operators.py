@@ -50,64 +50,58 @@ class Operator(object):
         self.logger = SalaryLogging(self.conf).getLogger()
 
 
-    def loaddatas(self):
+    def loaddatas(self,validatable=True):
+        raise NotImplementedError
+
+    def valdator(self,dataitems):
         raise NotImplementedError
 
     def converter(self):
         raise NotImplementedError
 
     def writer(self):
-        raise NotImplementedError     
+        raise NotImplementedError 
+
+    def loaddata(self,tpl_file_path,colnames_index=1,validable=True):
+        assert tpl_file_path is not None
+        # load 模板数据
+        # 加载数据
+        # 读取文件
+        wb = self.readfile(tpl_file_path)
+        # 读取第一个工作部
+        if not wb is None:
+            sh_0 = wb.sheet_by_index(0)
+            # 获取列名
+            cols = self.get_column_names(sh_0,colnames_index)
+            # 获取数值
+            return self.get_data_def(sh_0,cols,colnames_index,validable)
+        return list(),list()    
 
     def get_file_path(self, filefolderpath,filename):
         '''位于主程序目录下的位置
         '''
         return os.path.join(os.getcwd(),filefolderpath,filename)
 
-    def readfile(self):
-        filepath = self.get_file_path(self.conf.get_tpl_root_folder_name(),self.conf.get_tpl_gz_filename())
+    def readfile(self,filepath):
+        ''' 读取模板文件
+        '''
         if not os.path.exists(filepath):
             self.logger.debug(f'{filepath}不存在!')
             return
         return xlrd.open_workbook(filepath)
 
-    def get_item_by_colname(self,dataitems,col_name):
-        '''获取某列得值
+    def get_column_names(self,sheet,column_name_index=1):
+        '''获得列名list
         '''
-        for item in dataitems.items:
-            if item.col_name.lower() == col_name.lower():
-                return item
-        return None
-
-class GzOperator(Operator):
-
-    def __init__(self,config:type(SalaryConfig)):
-        Operator.__init__(self,config)
-        self.name = '工资模板处理器'
-        self.colnames_index = 1
-
-    def loaddatas(self): 
-        # load 模板数据
-        # 加载数据
-        # 读取文件
-        wb = self.readfile()
-        # 读取第一个工作部
-        if not wb is None:
-            sh_0 = wb.sheet_by_index(0)
-            # 获取列名
-            cols = self.get_column_names(sh_0,self.colnames_index)
-            # 获取数值
-            return self.get_data_def(sh_0,cols,self.colnames_index)
-        return list(),list()
-     
-
-    def get_column_names(self,sheet,column_name_index):
         cols = sheet.row_slice(column_name_index-1)
         rel = list()
         for c in cols:
             rel.append(c.value)
         return rel
-    def get_data_def(self,sheet,columnnames,column_name_index):
+    
+    def get_data_def(self,sheet,columnnames,column_name_index=1,vali=True):
+        ''' 获取数据信息
+        '''
         rows_num = sheet.nrows
         if column_name_index - 1 > rows_num:
             raise ReadTpLError()
@@ -128,10 +122,33 @@ class GzOperator(Operator):
                 items.append(DataItem('code',col_name,cn,typ,cols[cn].value))
             dis = DataItms(sn,items,False)
             rel.append(dis)
-            v,err = self.valdator(dis)
-            if not v:
-                errs.extend(err)
+            if vali:
+                v,err = self.valdator(dis)
+                if not v:
+                    errs.extend(err)
         return rel,errs
+
+    def get_item_by_colname(self,dataitems,col_name):
+        '''获取某列得值
+        '''
+        for item in dataitems.items:
+            if item.col_name.lower() == col_name.lower():
+                return item
+        return None
+
+class GzOperator(Operator):
+
+    def __init__(self,config:type(SalaryConfig),validatable = True):
+        Operator.__init__(self,config)
+        self.name = '工资模板处理器'
+        self.colnames_index = 1
+        # 是否在数据装载时进行数据效验
+        self.validable = validatable
+
+    def loaddatas(self): 
+        # load 模板数据
+        return self.loaddata(self.get_file_path(self.conf.get_tpl_root_folder_name(),self.conf.get_tpl_gz_filename()),self.colnames_index,self.valdator)
+    
     
     def valdator(self,dataitems):
         # 实发小于0
@@ -155,6 +172,34 @@ class GzOperator(Operator):
             with open(err_file,'a') as f:
                 f.write(err)
                 f.write('\n')
+
+class MergeOperator(Operator):
+    ''' 工资、奖金、银行卡信息合并操作
+    '''
+    def __init__(self,conf:type(SalaryConfig)):
+        assert conf is not None
+        Operator.__init__(self,conf)
+        self.clear_datas()
+
+    def clear_datas(self):
+        self.datas = dict()
+        self.datas['gz'] = list()
+        self.datas['jj'] = list()
+        self.datas['yhk'] = list()
+    
+    def loaddatas(self):
+        # 读取工资模板
+        # 读取奖金模板
+        # 读取银行卡号
+        # 组装成
+        # gzs,_ = self.readfile(self.get_file_path())
+        pass
+           
+
+    def read_gz_datas(self):
+        pass
+
+        
 
 
 
