@@ -18,12 +18,12 @@ from salary import contants
 class TestSalaryReader(object):
 
     def test_create_reader(self):
-        op = Operator()
+        op = Operator(SalaryConfig())
         with pytest.raises(NotImplementedError):
             op.loaddatas()
 
     def test_get_file_path(self):
-        op = Operator()
+        op = Operator(SalaryConfig())
         getstr = op.get_file_path('文件夹','文件名.文件后缀')
         assert getstr == os.path.join(r'd:\programming\python_projects\mg_hr_salary_support_pro','文件夹','文件名.文件后缀')
 
@@ -59,7 +59,7 @@ class TestSalaryReader(object):
     
     def test_get_item_value(self):
         op = GzOperator(SalaryConfig())
-        items = op.loaddatas()
+        items,_ = op.loaddatas()
         for item in items:
             col = op.get_item_by_colname(item,'实发')
             assert col is not None

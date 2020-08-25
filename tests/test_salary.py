@@ -8,7 +8,6 @@
 @Contact :   raogx.vip@hotmail.com
 '''
 
-from salary.config import settings 
 from salary.config import SalaryConfig
 from salary.app import SalarySupport
 

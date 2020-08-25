@@ -13,8 +13,10 @@ from salary import contants
 from dynaconf import Dynaconf
 
 
-
-
+settings = Dynaconf(
+    settings_files=['salary/settings.toml'],
+    load_dotenv=True,
+)
 
 class SalaryConfig(object):
     '''统一管理系统配置信息
@@ -26,10 +28,7 @@ class SalaryConfig(object):
         self._confs = confDict or self.default_settings()
 
     def default_settings(self) -> dict:
-        settings = Dynaconf(
-            settings_files=['salary/settings.toml'],
-            load_dotenv=True,
-        )
+       
         conf = {}
         for k,v in settings.as_dict().items():
             conf[k.lower()] = v

@@ -142,14 +142,7 @@ class GzOperator(Operator):
            return False,err
         return True,None
     
-    def converter(self,datas):
-        '''转换为工资数据model
-        '''
-        rel = list()
-        for d in datas:
-            rel.append(self.to_gz(d))
-        return rel
-
+    
     def writer(self,datas,errs):
         '''完成错误信息输出
         '''
@@ -157,17 +150,11 @@ class GzOperator(Operator):
         #转换为其他日期格式,如:"%Y-%m-%d %H:%M:%S" 
         timeStruct = time.localtime(now) 
         strTime = time.strftime("%Y-%m-%d-%H-%M-%S", timeStruct) 
-        err_file = f'error-{strTime}.txt'
+        err_file = f'数据核对结果-{strTime}.txt'
         for err in errs:
             with open(err_file,'a') as f:
                 f.write(err)
                 f.write('\n')
-
-    def to_gz(self,datas):
-        '''转换
-        '''
-        pass
-            
 
 
 
