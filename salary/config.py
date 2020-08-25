@@ -32,7 +32,6 @@ class SalaryConfig(object):
         conf = {}
         for k,v in settings.as_dict().items():
             conf[k.lower()] = v
-            print(f'{k.lower(),{v}}')
         return conf
 
     def __get_config_dict(self):
@@ -66,7 +65,32 @@ class SalaryConfig(object):
         return self.get_config_val(contants.LOGGING_LEVEL_KEY_NAME)
 
     def get_tpl_gz_filename(self):
-        return f'{self.get_config_val(contants.TPL_GZ_FILENAME_KEY_NAME)}.{self.get_config_val(contants.TPL_GZ_FILENAME_EXT_KEY_NAME)}'
+        return self.__get_tpl_filename(contants.TPL_GZ_FILENAME_KEY_NAME,contants.TPL_GZ_FILENAME_EXT_KEY_NAME)
+    
+    def get_tpl_jj_filename(self):
+        return self.__get_tpl_filename(contants.TPL_JJ_FILENAME_KEY_NAME,contants.TPL_JJ_FILENAME_EXT_KEY_NAME)
+
+    
+    def get_tpl_yhk_filename(self):
+        return self.__get_tpl_filename(contants.TPL_YHK_FILENAME_KEY_NAME,contants.TPL_YHK_FILENAME_EXT_KEY_NAME)
+
+    def __get_tpl_filename(self,filename,flieext):
+         return f'{self.get_config_val(filename)}.{self.get_config_val(flieext)}'
 
     def get_tpl_root_folder_name(self):
         return self.get_config_val(contants.TPL_ROOT_FOLDER_NAME_KEY_NAME)
+
+    def get_tpl_map_key_column_name(self):
+        return self.get_config_val(contants.TPL_MAP_KEY_COLUMN_NAME_KEY_NAME)   
+
+    def get_tpl_code_column_name(self):
+        return self.get_config_val(contants.TPL_CODE_COLUMN_NAME_KEY_NAME) 
+
+    def get_tpl_name_column_name(self):
+        return self.get_config_val(contants.TPL_NAME_COLUMN_NAME_KEY_NAME) 
+
+    def get_tpl_depart_column_name(self):
+        return self.get_config_val(contants.TPL_DEPART_COLUMN_NAME_KEY_NAME)
+    
+    def get_tpl_depart_other_column_name(self):
+        return self.get_config_val(contants.TPL_DEPART_COLUMN_OTHER_NAME_KEY_NAME)  

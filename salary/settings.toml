@@ -8,3 +8,18 @@ tpl_root_folder_name = '宝武EHR数据'
 tpl_gz_filename = '工资数据'
 # 默认excel 2003 格式
 tpl_gz_filename_ext = 'xls'
+
+tpl_jj_filename = '奖金数据'
+# 默认excel 2003 格式
+tpl_jj_filename_ext = 'xls'
+
+
+tpl_yhk_filename = '银行卡数据'
+# 默认excel 2003 格式
+tpl_yhk_filename_ext = 'xls'
+
+tpl_map_key_column_name = '员工通行证'
+tpl_code_column_name = '员工通行证'
+tpl_name_column_name = '员工姓名'
+tpl_depart_column_name = '机构'
+tpl_depart_column_other_name = '部门'

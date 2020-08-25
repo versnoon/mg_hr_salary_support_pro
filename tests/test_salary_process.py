@@ -12,6 +12,7 @@
 
 from salary.process import  Process 
 from salary.operators import GzOperator
+from salary.operators import MergeOperator
 from salary.config import SalaryConfig
 
 class TestSalaryProcess(object):
@@ -20,3 +21,8 @@ class TestSalaryProcess(object):
         proc = Process(GzOperator(SalaryConfig()))
         proc.process_validat()
         assert proc.name == '工资模板处理器' 
+
+    def test_merge_opreator_process(self):
+        proc = Process(MergeOperator(SalaryConfig()))
+        proc.process_validat()
+        assert proc.name == '工资奖金模板处理器'

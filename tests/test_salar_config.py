@@ -45,6 +45,14 @@ class TestSalaryConfig(object):
     def test_get_tpl_gz_filename(self):
         conf = SalaryConfig()
         assert conf.get_tpl_gz_filename() == '工资数据.xls'
+    
+    def test_get_tpl_jj_filename(self):
+        conf = SalaryConfig()
+        assert conf.get_tpl_jj_filename() == '奖金数据.xls'
+
+    def test_get_tpl_yhk_filename(self):
+        conf = SalaryConfig()
+        assert conf.get_tpl_yhk_filename() == '银行卡数据.xls'
 
     def test_get_tpl_root_folder_name(self):
         conf = SalaryConfig()
