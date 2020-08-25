@@ -20,4 +20,8 @@ class Process(object):
         datas = self.operator.loaddatas()
         model_datas = self.operator.converter(datas)
         self.operator.writer(model_datas)
+
+    def process_validat(self):
+        datas,errs = self.operator.loaddatas()
+        self.operator.writer(datas,errs)
     

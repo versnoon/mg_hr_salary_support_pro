@@ -18,5 +18,5 @@ class TestSalaryProcess(object):
 
     def test_gz_opreator_process(self):
         proc = Process(GzOperator(SalaryConfig()))
-        # proc.process()
+        proc.process_validat()
         assert proc.name == '工资模板处理器' 

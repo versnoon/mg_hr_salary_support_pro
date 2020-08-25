@@ -9,19 +9,25 @@
 '''
 
 import os
+
+os.sys.path.append(os.path.realpath(os.getcwd()))
 from salary.config import SalaryConfig
+from salary.process import Process
+from salary.operators import GzOperator
 
 
 class SalarySupport(object):
     
 
     def __init__(self,conf: type(SalaryConfig)=None):
+        if conf is None:
+            conf = SalaryConfig()
         self._config = conf
 
     
     def run(self) -> 'str':
+        proc = Process(GzOperator(self._config))
+        proc.process_validat()
         return 'salary_run'
 
-if __name__ == "__main__":
-    print(SalarySupport().run())
 

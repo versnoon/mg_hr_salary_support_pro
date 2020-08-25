@@ -9,6 +9,7 @@
 '''
 
 import os
+import time
 import xlrd
 from salary.config import SalaryConfig
 from salary.logging import SalaryLogging
@@ -43,9 +44,10 @@ class DataItms(object):
 class Operator(object):
 
     
-    def __init__(self,config:type(SalaryConfig)=None):
+    def __init__(self,config:type(SalaryConfig)):
+        assert config is not None
         self.conf = config
-        self.logger = SalaryLogging(SalaryConfig()).getLogger()
+        self.logger = SalaryLogging(self.conf).getLogger()
 
 
     def loaddatas(self):
@@ -69,6 +71,14 @@ class Operator(object):
             return
         return xlrd.open_workbook(filepath)
 
+    def get_item_by_colname(self,dataitems,col_name):
+        '''获取某列得值
+        '''
+        for item in dataitems.items:
+            if item.col_name.lower() == col_name.lower():
+                return item
+        return None
+
 class GzOperator(Operator):
 
     def __init__(self,config:type(SalaryConfig)):
@@ -87,9 +97,8 @@ class GzOperator(Operator):
             # 获取列名
             cols = self.get_column_names(sh_0,self.colnames_index)
             # 获取数值
-            items = self.get_data_def(sh_0,cols,self.colnames_index)
-            return items
-        return list()
+            return self.get_data_def(sh_0,cols,self.colnames_index)
+        return list(),list()
      
 
     def get_column_names(self,sheet,column_name_index):
@@ -105,16 +114,33 @@ class GzOperator(Operator):
         start_nrow = column_name_index
         
         rel = list()
+        # 错误信息
+        errs = list()
         for sn in range(start_nrow,rows_num):
             cols = sheet.row_slice(sn)
             typs = sheet.row_types(sn)
+            # 数据信息
             items = list()
+            
             for cn in range(0,len(cols)):
                 typ = typs[cn]
                 col_name = columnnames[cn]
-                items.append(DataItem('code',col_name,cn,typ,cols[cn]))
-            rel.append(DataItms(sn,items,False))
-        return rel
+                items.append(DataItem('code',col_name,cn,typ,cols[cn].value))
+            dis = DataItms(sn,items,False)
+            rel.append(dis)
+            v,err = self.valdator(dis)
+            if not v:
+                errs.extend(err)
+        return rel,errs
+    
+    def valdator(self,dataitems):
+        # 实发小于0
+        err = list()
+        sf = self.get_item_by_colname(dataitems,'实发')
+        if sf.val < 0 :
+           err.append(f'错误：{dataitems.no}行，实发{sf.val}小于0') 
+           return False,err
+        return True,None
     
     def converter(self,datas):
         '''转换为工资数据model
@@ -124,10 +150,18 @@ class GzOperator(Operator):
             rel.append(self.to_gz(d))
         return rel
 
-    def writer(self,datas):
+    def writer(self,datas,errs):
+        '''完成错误信息输出
         '''
-        '''
-        return datas
+        now = int(time.time()) 
+        #转换为其他日期格式,如:"%Y-%m-%d %H:%M:%S" 
+        timeStruct = time.localtime(now) 
+        strTime = time.strftime("%Y-%m-%d-%H-%M-%S", timeStruct) 
+        err_file = f'error-{strTime}.txt'
+        for err in errs:
+            with open(err_file,'a') as f:
+                f.write(err)
+                f.write('\n')
 
     def to_gz(self,datas):
         '''转换

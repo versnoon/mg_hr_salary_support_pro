@@ -15,4 +15,5 @@ from salary.app import SalarySupport
 
 if __name__ == "__main__":
     #  eg app.run(相关配置)
-    pass
+    support = SalarySupport()
+    support.run()
