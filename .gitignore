@@ -8,6 +8,7 @@ dist
 *.spec
 *.log
 *.xls
+*.xlsx
 *.txt
 # Ignore dynaconf secret files
 .secrets.*

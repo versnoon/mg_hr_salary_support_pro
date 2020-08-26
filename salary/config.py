@@ -74,6 +74,9 @@ class SalaryConfig(object):
     def get_tpl_yhk_filename(self):
         return self.__get_tpl_filename(contants.TPL_YHK_FILENAME_KEY_NAME,contants.TPL_YHK_FILENAME_EXT_KEY_NAME)
 
+    def get_tpl_sap_filename(self):
+        return self.__get_tpl_filename(contants.TPL_SAP_FILENAME_KEY_NAME,contants.TPL_SAP_FILENAME_EXT_KEY_NAME)
+    
     def __get_tpl_filename(self,filename,flieext):
          return f'{self.get_config_val(filename)}.{self.get_config_val(flieext)}'
 
@@ -93,4 +96,19 @@ class SalaryConfig(object):
         return self.get_config_val(contants.TPL_DEPART_COLUMN_NAME_KEY_NAME)
     
     def get_tpl_depart_other_column_name(self):
-        return self.get_config_val(contants.TPL_DEPART_COLUMN_OTHER_NAME_KEY_NAME)  
+        return self.get_config_val(contants.TPL_DEPART_COLUMN_OTHER_NAME_KEY_NAME)
+
+    def get_bw_code_from_sap_code(self,sap_code):
+        items = dict()
+        # 马道局
+        items['200658'] = 'MA7333'
+        # 张朕
+        items['200121'] = 'MA7009'
+        if sap_code in items:
+            return items.get(sap_code)
+        else:
+            if len(sap_code)>0 and  len(sap_code) <= 5: 
+                return 'M%05d' % int(sap_code)
+            return sap_code
+    
+    

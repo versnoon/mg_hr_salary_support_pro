@@ -23,6 +23,8 @@ TPL_JJ_FILENAME_KEY_NAME = 'tpl_jj_filename'
 TPL_JJ_FILENAME_EXT_KEY_NAME = 'tpl_jj_filename_ext'
 TPL_YHK_FILENAME_KEY_NAME = 'tpl_yhk_filename'
 TPL_YHK_FILENAME_EXT_KEY_NAME = 'tpl_yhk_filename_ext'
+TPL_SAP_FILENAME_KEY_NAME = 'tpl_sap_filename'
+TPL_SAP_FILENAME_EXT_KEY_NAME = 'tpl_sap_filename_ext'
 TPL_ROOT_FOLDER_NAME_KEY_NAME = 'tpl_root_folder_name'
 
 TPL_MAP_KEY_COLUMN_NAME_KEY_NAME = 'tpl_map_key_column_name'

@@ -10,10 +10,9 @@
 
 import os
 
-os.sys.path.append(os.path.realpath(os.getcwd()))
 from salary.config import SalaryConfig
 from salary.process import Process
-from salary.operators import GzOperator
+from salary.operators import MergeOperator
 
 
 class SalarySupport(object):
@@ -26,7 +25,7 @@ class SalarySupport(object):
 
     
     def run(self) -> 'str':
-        proc = Process(GzOperator(self._config))
+        proc = Process(MergeOperator(self._config))
         proc.process_validat()
         return 'salary_run'
 

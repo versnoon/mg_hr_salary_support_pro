@@ -18,8 +18,13 @@ tpl_yhk_filename = '银行卡数据'
 # 默认excel 2003 格式
 tpl_yhk_filename_ext = 'xls'
 
+tpl_sap_filename = 'SAP数据'
+# 默认excel 2007 格式
+tpl_sap_filename_ext = 'xlsx'
+
 tpl_map_key_column_name = '员工通行证'
 tpl_code_column_name = '员工通行证'
 tpl_name_column_name = '员工姓名'
 tpl_depart_column_name = '机构'
 tpl_depart_column_other_name = '部门'
+

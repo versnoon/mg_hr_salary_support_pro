@@ -86,19 +86,23 @@ class TestSalaryReader(object):
         assert keystr == str(3000)
 
     def test_to_map(self):
-        op = GzOperator(SalaryConfig())
+        op = MergeOperator(SalaryConfig())
         items = [DataItms(0,'gz',[DataItem('code','员工通行证',0,1,'M73247'),DataItem('code','党费',9,0,''),DataItem('code','累计住房租金支出',10,2,3000)]),\
                  DataItms(1,'gz',[DataItem('code','员工通行证',0,1,'M73248'),DataItem('code','党费',9,0,''),DataItem('code','累计住房租金支出',10,2,5000)]),\
-                 DataItms(2,'gz',[DataItem('code','员工通行证',0,1,'M73249'),DataItem('code','党费',9,0,''),DataItem('code','累计住房租金支出',10,2,8000)])]
+                 DataItms(2,'gz',[DataItem('code','员工通行证',0,1,'M73249'),DataItem('code','党费',9,0,''),DataItem('code','累计住房租金支出',10,2,8000)]),\
+                 DataItms(2,'sap',[DataItem('sap','员工通行证',0,1,'200658'),DataItem('sap','党费',9,0,''),DataItem('sap','累计住房租金支出',10,2,8000)])]
 
-        mps = op.to_map(items,'员工通行证')
-        assert len(mps) == 3
+        mps = op.to_map(items,'员工通行证',op.conv_key)
+        assert len(mps) == 4
         t = mps.get('M73247') 
         assert t is not None
         assert len(t) == 1
         assert t[0].no == 0
         assert t[0].items[0].col_name == '员工通行证' 
         assert t[0].items[0].val == 'M73247' 
+        t = mps.get('MA7333')
+        assert t is not None
+        assert t[0].items[0].val == '200658' 
 
     def test_get_employ_code_name_depart_message_from_items(self):
         op = MergeOperator(SalaryConfig())
@@ -150,6 +154,7 @@ class TestSalaryReader(object):
         yhk_no_str = op.get_yhk_no(dataitemss,'jj')
         assert len(yhk_no_str) == 0
         assert yhk_no_str == ''
+
     
     
     

@@ -54,9 +54,21 @@ class TestSalaryConfig(object):
         conf = SalaryConfig()
         assert conf.get_tpl_yhk_filename() == '银行卡数据.xls'
 
+    
+    def test_get_tpl_sap_filename(self):
+        conf = SalaryConfig()
+        assert conf.get_tpl_sap_filename() == 'SAP数据.xlsx'
+
     def test_get_tpl_root_folder_name(self):
         conf = SalaryConfig()
         assert conf.get_tpl_root_folder_name() == '宝武EHR数据'
+
+    def test_get_bw_code_from_sap_code(self):
+        conf = SalaryConfig()
+        assert conf.get_bw_code_from_sap_code('200658') == 'MA7333'
+        assert conf.get_bw_code_from_sap_code('73677') == 'M73677'
+        assert conf.get_bw_code_from_sap_code('3677') == 'M03677'
+        assert conf.get_bw_code_from_sap_code('200659') == '200659'
         
 
 

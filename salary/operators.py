@@ -132,7 +132,7 @@ class Operator(object):
                 typ = typs[cn]
                 col_name = columnnames[cn]
                 items.append(DataItem(code, col_name, cn, typ, cols[cn].value))
-            dis = DataItms(sn, code, items, False)
+            dis = DataItms(sn + 1, code, items, False)
             rel.append(dis)
             if vali:
                 v, err = self.valdator(dis)
@@ -162,8 +162,23 @@ class Operator(object):
             elif item.col_name.lower() == self.conf.get_tpl_depart_column_name() or item.col_name.lower() == self.conf.get_tpl_depart_other_column_name():
                 depart = item.val.replace('\\', '-')
         return code, name, depart
+    
+    def get_employ_sap_code_name_depart_message_from_items(self, dataitems):
+        '''获取某列得值
+        '''
+        code = ''
+        name = ''
+        depart = ''
+        for item in dataitems.items:
+            if item.col_name.lower() == '员工编号':
+                code = item.val
+            elif item.col_name.lower() == '员工姓名':
+                name = item.val
+            elif item.col_name.lower() == '工资范围':
+                depart = item.val
+        return code, name, depart
 
-    def to_map(self, dataitems, keyname):
+    def to_map(self, dataitems, keyname,conv_key=None):
         rel = dict()
         for di in dataitems:
             key_item = self.get_item_by_colname(di, keyname)
@@ -172,7 +187,10 @@ class Operator(object):
             if key in rel:
                 val_list = rel.get(key)
             val_list.append(di)
-            rel[key] = val_list
+            if conv_key is None:
+                rel[key] = val_list
+            else:
+                rel[conv_key(key)] = val_list
         return rel
 
     def get_key_str_from_item(self, key_item):
@@ -245,6 +263,7 @@ class MergeOperator(Operator):
         self.datas['gz'] = list()
         self.datas['jj'] = list()
         self.datas['yhk'] = list()
+        self.datas['sap'] = list()
 
     def loaddatas(self):
         # 读取工资模板
@@ -262,6 +281,11 @@ class MergeOperator(Operator):
         yhks, _ = self.loaddata(yhk_tpl_path, 1, False, 'yhk')
         if len(yhks) > 0:
             self.datas['yhk'] = yhks
+        # 读取SAP数据
+        sap_tpl_path = self.get_file_path(self.conf.get_tpl_sap_filename())
+        saps, _ = self.loaddata(sap_tpl_path, 1, False, 'sap')
+        if len(saps) > 0:
+            self.datas['sap'] = saps
         return self.merge_valdator()
 
     # 验证
@@ -270,10 +294,12 @@ class MergeOperator(Operator):
         gz_map = self.to_map(self.datas['gz'], key_col_name)
         jj_map = self.to_map(self.datas['jj'], key_col_name)
         yhk_map = self.to_map(self.datas['yhk'], key_col_name)
+        sap_map = self.to_map(self.datas['sap'],'员工编号',self.conv_key)
 
         errs = list()
         errs.extend(self.valdate(gz_map,yhk_map,'gz'))
         errs.extend(self.valdate(jj_map,yhk_map,'jj'))
+        errs.extend(self.valdate_sap(gz_map,jj_map,yhk_map,sap_map))
         # 验证工资数据
         # 没有工资发放记录
         # 存在多条工资发放记录
@@ -309,6 +335,15 @@ class MergeOperator(Operator):
             dataitems)
         nos = self.get_err_message_nos(dataitemss)
         return f'{code}-{name}-{depart}  {msg_prefix}: {msg}--->{nos}'
+    
+    def get_err_message_sap(self,sap_itemss,msg):
+        dataitems = sap_itemss[0]
+        typ = dataitems.code
+        msg_prefix = self.get_err_message_prefix(typ)
+        code, name, depart = self.get_employ_sap_code_name_depart_message_from_items(
+            dataitems)
+        nos = self.get_err_message_nos(sap_itemss)
+        return f'{self.conv_key(code)}-{name}-{depart}  {msg_prefix}: {msg}--->{nos}'
 
     def get_err_message_prefix(self, typ):
         msg_prefix = '信息'
@@ -318,6 +353,8 @@ class MergeOperator(Operator):
             msg_prefix = f'奖金{msg_prefix}'
         elif typ == 'yhk':
             msg_prefix = f'银行卡{msg_prefix}'
+        elif typ == 'sap':
+            msg_prefix = f'SAP{msg_prefix}'
         return msg_prefix
 
     def get_err_message_nos(self, dataitemss):
@@ -377,3 +414,88 @@ class MergeOperator(Operator):
                     errs.append(self.get_err_message(v, f'缺少{typ_str}岗位工资信息'))
                 # 验证保留劳动关系 停薪留职实发不为0 (缺少信息无法实现)
         return errs
+
+    
+    def valdate_sap(self,gz_map,jj_map,yhk_map,sap_map):
+        gz_keys = set(gz_map.keys())
+        jj_keys = set(jj_map.keys())
+        merge_keys = gz_keys.union(jj_keys)
+        sap_keys = set(sap_map.keys())
+        errs = list()
+        for k in merge_keys:
+            vv = gz_map.get(k)
+            if vv is None or len(vv) == 0:
+                vv = jj_map.get(k)
+            if k not in sap_keys:
+                errs.append(self.get_err_message(vv,f'无法找到对应得SAP系统数据'))
+            else:
+                yf = 0
+                sf = 0
+                if k in gz_map:
+                    gz_v = gz_map.get(k)
+                    gz_yf_item = self.get_item_by_colname(gz_v[0], '应发')
+                    gz_sf_item = self.get_item_by_colname(gz_v[0], '实发')
+                    gz_db_item = self.get_item_by_colname(gz_v[0],'独生子女费')
+                    gz_jyjf_item = self.get_item_by_colname(gz_v[0],'兼课带教费')
+                    if gz_yf_item is not None:
+                        yf += gz_yf_item.val
+                        if gz_db_item.typ == 2:
+                            yf -= gz_db_item.val
+                        sf += gz_sf_item.val  
+                        if gz_db_item.typ == 2:
+                            sf -= gz_jyjf_item.val 
+                if k in jj_map:
+                    jj_v = jj_map.get(k)
+                    jj_yf_item = self.get_item_by_colname(jj_v[0], '应发')
+                    jj_sf_item = self.get_item_by_colname(jj_v[0],'实发')
+                    if jj_yf_item is not None:
+                        yf += jj_yf_item.val
+                        sf += jj_sf_item.val
+                sap_v = sap_map.get(k)
+                sap_yf = 0
+                sap_sf = 0
+                sap_yf_item =  self.get_item_by_colname(sap_v[0], '工资应发')
+                sap_ft_item =  self.get_item_by_colname(sap_v[0], '年底兑现奖')
+                sap_sf_item =  self.get_item_by_colname(sap_v[0], '实发工资')     
+                if  sap_yf_item is not None:
+                    sap_yf += sap_yf_item.val + sap_ft_item.val
+                    sap_sf += sap_sf_item.val
+                
+                if round(yf-sap_yf,2) != 0:
+                    errs.append(self.get_err_message(vv,f'应发合计不匹配----宝武EHR数值：{yf},SAP数值{sap_yf}'))
+                if round(sf-sap_sf,2) != 0:
+                    errs.append(self.get_err_message(vv,f'实发合计不匹配----宝武EHR数值：{sf},SAP数值{sap_sf}'))
+
+                # 银行卡验证 
+                sap_gz_yhk_item =  self.get_item_by_colname(sap_v[0], '银行卡1')
+                sap_jj_yhk_item =  self.get_item_by_colname(sap_v[0], '银行卡2')
+                
+                yhks = yhk_map.get(k)
+                if yhks is not None:
+                    gz_yhk  = self.get_yhk_no(yhks,'gz').strip()
+                    jj_yhk  = self.get_yhk_no(yhks,'jj').strip()
+                    if jj_yhk == '':
+                        jj_yhk = gz_yhk
+                    if sap_gz_yhk_item is not None:
+                        if gz_yhk != sap_gz_yhk_item.val:
+                            errs.append(self.get_err_message_sap(vv,f'工资卡信息不匹配----宝武EHR数值：{gz_yhk},SAP数值{sap_gz_yhk_item.val}'))
+                        if jj_yhk != sap_jj_yhk_item.val:
+                            errs.append(self.get_err_message_sap(vv,f'奖金卡信息不匹配----宝武EHR数值：{jj_yhk},SAP数值{sap_jj_yhk_item.val}'))
+        
+        for v in sap_keys:
+            if v not in merge_keys:
+                errs.append(self.get_err_message_sap(sap_map.get(v),f'无法找到对应得宝武EHR系统数据'))
+        
+            
+        # 验证应发
+        
+        # 验证实发
+        
+        # 验证扣缴  
+
+        return errs
+
+
+    def conv_key(self,key):
+        return self.conf.get_bw_code_from_sap_code(key)
+
