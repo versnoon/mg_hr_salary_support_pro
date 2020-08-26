@@ -474,8 +474,8 @@ class MergeOperator(Operator):
                 if yhks is not None:
                     gz_yhk  = self.get_yhk_no(yhks,'gz').strip()
                     jj_yhk  = self.get_yhk_no(yhks,'jj').strip()
-                    if jj_yhk == '':
-                        jj_yhk = gz_yhk
+                    if sap_jj_yhk_item.val == '':
+                        sap_jj_yhk_item = sap_gz_yhk_item
                     if sap_gz_yhk_item is not None:
                         if gz_yhk != sap_gz_yhk_item.val:
                             errs.append(self.get_err_message_sap(vv,f'工资卡信息不匹配----宝武EHR数值：{gz_yhk},SAP数值{sap_gz_yhk_item.val}'))
