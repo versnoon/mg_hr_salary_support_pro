@@ -104,6 +104,8 @@ class SalaryConfig(object):
         items['200658'] = 'MA7333'
         # 张朕
         items['200121'] = 'MA7009'
+        # 刘轩
+        items['45000448'] = 'MA7023'
         if sap_code in items:
             return items.get(sap_code)
         else:
