@@ -15,5 +15,6 @@ from salary.app import SalarySupport
 
 if __name__ == "__main__":
     #  eg app.run(相关配置)
-    support = SalarySupport()
-    support.run()
+    msg = SalarySupport().run()
+    print(msg)
+    input("回车退出程序!")

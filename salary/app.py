@@ -26,7 +26,10 @@ class SalarySupport(object):
     
     def run(self) -> 'str':
         proc = Process(MergeOperator(self._config))
-        proc.process_validat()
-        return 'salary_run'
+        val = proc.process_validat()
+        msg = '效验通过'
+        if not val:
+            msg = '效验失败,请查看数据核对结果文件'
+        return msg
 
 

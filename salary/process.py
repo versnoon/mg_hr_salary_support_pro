@@ -23,5 +23,8 @@ class Process(object):
 
     def process_validat(self):
         datas,errs = self.operator.loaddatas()
-        self.operator.writer(datas,errs)
+        if len(errs) > 0:
+            self.operator.writer(datas,errs)
+            return False
+        return True
     
