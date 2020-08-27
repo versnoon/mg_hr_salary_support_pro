@@ -326,6 +326,46 @@ class Operator(object):
     def conv_key(self,key):
         return self.conf.get_bw_code_from_sap_code(key)
 
+    def item_association(self):
+        gz_assocs = dict()
+        jj_assocs = dict()
+        gz_assocs['岗位工资'] = '岗位工资'
+        gz_assocs['保留工资'] = '保留工资'
+        gz_assocs['年功工资'] = '工龄工资'
+        gz_assocs['辅助工资'] = '其他保留工资'
+        gz_assocs['夜班津贴'] = '中夜班津贴'
+        gz_assocs['技师津贴'] = '技能津贴'
+        gz_assocs['科技津贴'] = '科技优秀津贴'
+        gz_assocs['能手津贴'] = '操作能手津贴'
+        gz_assocs['外语津贴'] = '学历津贴'
+        gz_assocs['教、护龄津贴'] = '驻外津贴'
+        gz_assocs['通讯费'] = '通讯补贴'
+        gz_assocs['保健费'] = '出勤津贴'
+        gz_assocs['独补'] = '独生子女费'
+        gz_assocs['防暑降温'] = '高温津贴'
+        gz_assocs['回民'] = '民族津贴'
+        gz_assocs['技术攻关津贴'] = '技术津贴'
+        gz_assocs['科研项目津贴'] = '特殊贡献津贴'
+        gz_assocs['职务补贴'] = '公务车贴'
+        gz_assocs['非工资性津贴补发'] = '各项补贴'
+        gz_assocs['物业补贴'] = '水电气暖物业补贴'
+        gz_assocs['预支工资'] = '月固定薪资'
+        gz_assocs['法定节日加班工资'] = '法定假日加班工资'
+        gz_assocs['公休日加班工资'] = '休息日加班工资'
+        gz_assocs['平时加班工资'] = '平常加班工资'
+        ## 补充年薪制人员
+        
+        jj_assocs['基本奖金'] = '基本奖金'
+        jj_assocs['单项奖1'] = '单项奖1'
+        jj_assocs['单项奖2'] = '单项奖2'
+        jj_assocs['单项奖3'] = '单项奖3'
+        jj_assocs['计税奖金'] = '计税奖金'
+        jj_assocs['年底兑现奖'] = '年底兑现奖'
+        jj_assocs['工程津贴'] = '工程津贴'
+        jj_assocs['技术输出 '] = '技术输出'
+
+        return gz_assocs,jj_assocs    
+
 
 class GzOperator(Operator):
 
@@ -534,6 +574,18 @@ class MergeOperator(Operator):
                 
                 if round(yf-sap_yf,2) != 0:
                     errs.append(self.get_err_message(vv,f'应发合计不匹配----宝武EHR数值：{yf},SAP数值{sap_yf}'))
+                    # 验证 明细
+                    gz_vv = None
+                    jj_vv = None
+                    sap_vv = None
+                    if k in gz_map:
+                        gz_vv = gz_map.get(k)[0]
+                    if k in jj_map:
+                        jj_vv = jj_map.get(k)[0]
+                    if k in sap_map:
+                        sap_vv = sap_map.get(k)[0]
+                    errs.extend(self.valdate_sap_detail(vv,sap_map.get(k),gz_vv,jj_vv,sap_vv))
+                    # 
                 if round(sf-sap_sf,2) != 0:
                     errs.append(self.get_err_message(vv,f'实发合计不匹配----宝武EHR数值：{sf},SAP数值{sap_sf}'))
 
@@ -549,9 +601,9 @@ class MergeOperator(Operator):
                         sap_jj_yhk_item = sap_gz_yhk_item
                     if sap_gz_yhk_item is not None:
                         if gz_yhk != sap_gz_yhk_item.val:
-                            errs.append(self.get_err_message_sap(vv,f'工资卡信息不匹配----宝武EHR数值：{gz_yhk},SAP数值{sap_gz_yhk_item.val}'))
+                            errs.append(self.get_err_message(vv,f'工资卡信息不匹配----宝武EHR数值：{gz_yhk},SAP数值{sap_gz_yhk_item.val}'))
                         if jj_yhk != sap_jj_yhk_item.val:
-                            errs.append(self.get_err_message_sap(vv,f'奖金卡信息不匹配----宝武EHR数值：{jj_yhk},SAP数值{sap_jj_yhk_item.val}'))
+                            errs.append(self.get_err_message(vv,f'奖金卡信息不匹配----宝武EHR数值：{jj_yhk},SAP数值{sap_jj_yhk_item.val}'))
         
         for v in sap_keys:
             if v not in merge_keys:
@@ -566,7 +618,39 @@ class MergeOperator(Operator):
 
         return errs
 
+    def valdate_sap_detail(self,vv,sap_vv,gz_v,jj_v,sap_v):
+        errs = list()
+        gz_as,jj_as = self.item_association()
+        for k,v in gz_as.items():
+            self.validate_sap_item_detail(vv,sap_vv,gz_v, sap_v,k,v,errs)
+        for k,v in jj_as.items():
+            self.validate_sap_item_detail(vv,sap_vv,jj_v, sap_v,k,v,errs)
+        return errs
 
+    def validate_sap_item_detail(self,vv,sap_vv,gz_v,sap_v,sap_item_name,item_name,errs):
+        item = None
+        sap_item = None
+        if gz_v is not None :
+            item = self.get_item_by_colname(gz_v, item_name)
+        if sap_v is not None:
+            sap_item = self.get_item_by_colname(sap_v, sap_item_name)
+        
+        if item is not None and item.val!=0 and sap_item is None:
+            errs.append(self.get_err_message(vv,f'{item_name}[sap名称{sap_item_name}]不匹配----宝武EHR数值：{item.val},SAP不存在'))
+            return
+        if item is not None and item.val != sap_item.val:
+            if item.val == '' and sap_item.val==0:
+                return
+            if item.val ==0 and sap_item.val == '':
+                return 
+            errs.append(self.get_err_message(vv,f'{item_name}[sap名称{sap_item_name}]不匹配----宝武EHR数值：{item.val},SAP数值{sap_item.val}'))
+            return
+        if item is None and sap_item is not None  and sap_item.val!=0:
+            errs.append(self.get_err_message_sap(sap_vv,f'{item_name}[sap名称{sap_item_name}]不匹配----宝武EHR不存在,SAP数值{sap_item.val}'))
+            return 
+
+    
+    
 
 
 
