@@ -28,13 +28,15 @@ class TestSalaryReader(object):
 
     def test_get_file_path(self):
         op = Operator(SalaryConfig())
+        op.set_period('202008')  
         getstr = op.get_file_path('文件名.文件后缀')
-        assert getstr == os.path.join(r'd:\programming\python_projects\mg_hr_salary_support_pro',op.conf.get_tpl_root_folder_name(),'文件名.文件后缀')
+        assert getstr == os.path.join(r'd:\programming\python_projects\mg_hr_salary_support_pro',op.conf.get_tpl_root_folder_name(),op.period,'文件名.文件后缀')
 
     
 
     def test_get_file_cols(self):
         op = GzOperator(SalaryConfig())
+        op.set_period('202008')
         wb = op.readfile(op.get_file_path(op.conf.get_tpl_gz_filename()))
         assert wb is not None
         cols = op.get_column_names(wb.sheet_by_index(0),op.colnames_index)
@@ -44,12 +46,14 @@ class TestSalaryReader(object):
 
     def test_gz_operator_valid(self):
         op = GzOperator(SalaryConfig())
+        op.set_period('202008')
         assert op.validable == True
         op.unvalid()
         assert op.validable ==  False
 
     def test_get_file_items(self):
         op = GzOperator(SalaryConfig())
+        op.set_period('202008')
         wb = op.readfile(op.get_file_path(op.conf.get_tpl_gz_filename()))
         assert wb is not None
         sh_0 = wb.sheet_by_index(0)
@@ -65,6 +69,7 @@ class TestSalaryReader(object):
     
     def test_get_item_value(self):
         op = GzOperator(SalaryConfig())
+        op.set_period('202008')
         items,_ = op.loaddatas()
         for item in items:
             col = op.get_item_by_colname(item,'实发')
@@ -77,6 +82,7 @@ class TestSalaryReader(object):
 
     def test_get_key_str_from_item(self):
         op = GzOperator(SalaryConfig())
+        op.set_period('202008')
         items = DataItms(0,'gz',[DataItem('code','员工通行证',0,1,'M73247'),DataItem('code','党费',9,0,''),DataItem('code','累计住房租金支出',10,2,3000)])
         keystr = op.get_key_str_from_item(items.items[0])
         assert keystr == 'M73247'
@@ -87,6 +93,7 @@ class TestSalaryReader(object):
 
     def test_to_map(self):
         op = MergeOperator(SalaryConfig())
+        op.set_period('202008')
         items = [DataItms(0,'gz',[DataItem('code','员工通行证',0,1,'M73247'),DataItem('code','党费',9,0,''),DataItem('code','累计住房租金支出',10,2,3000)]),\
                  DataItms(1,'gz',[DataItem('code','员工通行证',0,1,'M73248'),DataItem('code','党费',9,0,''),DataItem('code','累计住房租金支出',10,2,5000)]),\
                  DataItms(2,'gz',[DataItem('code','员工通行证',0,1,'M73249'),DataItem('code','党费',9,0,''),DataItem('code','累计住房租金支出',10,2,8000)]),\
@@ -106,6 +113,7 @@ class TestSalaryReader(object):
 
     def test_get_employ_code_name_depart_message_from_items(self):
         op = MergeOperator(SalaryConfig())
+        op.set_period('202008')
         dataitems = [DataItms(0,'gz',[DataItem('gz','员工通行证',0,1,'M73247'),DataItem('gz','员工姓名',1,1,'张志容'),DataItem('gz','机构',2,1,r'马鞍山钢铁股份有限公司（总部）\资源分公司\第二回收分厂\回收作业区')])]
         code,name,depart = op.get_employ_code_name_depart_message_from_items(dataitems[0])
         assert code == 'M73247'
@@ -116,6 +124,7 @@ class TestSalaryReader(object):
 
     def test_get_err_message_prefix(self):
         op = MergeOperator(SalaryConfig())
+        op.set_period('202008')
         typ_str = op.get_err_message_prefix('gz')
         assert typ_str == '工资信息'
         typ_str = op.get_err_message_prefix('jj')
@@ -125,10 +134,12 @@ class TestSalaryReader(object):
 
     def test_merge_opreator_create(self):
         op = MergeOperator(SalaryConfig())
+        op.set_period('202008')
         assert op is not None
 
     def test_get_yhk_no(self):
         op = MergeOperator(SalaryConfig())
+        op.set_period('202008')
         dataitemss = [DataItms(0,'yhk',[DataItem('yhk','卡号',4,1,'6215591306000614234'),DataItem('yhk','卡用途',6,1,'报支卡  奖金卡  工资卡')])]
         yhk_no_str = op.get_yhk_no(dataitemss,'gz')
         assert len(yhk_no_str)>0

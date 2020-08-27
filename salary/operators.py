@@ -75,6 +75,8 @@ class Operator(object):
         raise NotImplementedError
 
     def loaddata(self, tpl_file_path, colnames_index=1, validable=True, code='code'):
+        assert self.period is not None
+        assert self.period != ''
         assert tpl_file_path is not None
         # load 模板数据
         # 加载数据
@@ -89,13 +91,13 @@ class Operator(object):
             return self.get_data_def(sh_0, cols, colnames_index, validable, code)
         return list(), list()
 
-    def __get_file_path(self, filefolderpath, filename):
+    def __get_file_path(self, filefolderpath,period, filename):
         '''位于主程序目录下的位置
         '''
-        return os.path.join(os.getcwd(), filefolderpath, filename)
+        return os.path.join(os.getcwd(), filefolderpath, period,filename)
 
     def get_file_path(self, filename):
-        return self.__get_file_path(self.conf.get_tpl_root_folder_name(), filename)
+        return self.__get_file_path(self.conf.get_tpl_root_folder_name(),self.period,filename)
 
     def readfile(self, filepath):
         ''' 读取模板文件
