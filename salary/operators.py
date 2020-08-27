@@ -218,7 +218,7 @@ class Operator(object):
             elif item.col_name.lower() == self.conf.get_tpl_name_column_name():
                 name = item.val
             elif item.col_name.lower() == self.conf.get_tpl_depart_column_name() or item.col_name.lower() == self.conf.get_tpl_depart_other_column_name():
-                depart = item.val.replace('\\', '-')
+                depart = item.val.replace('\\', '>')
         return code, name, depart
     
     def get_employ_sap_code_name_depart_message_from_items(self, dataitems):
@@ -273,7 +273,7 @@ class Operator(object):
         code, name, depart = self.get_employ_code_name_depart_message_from_items(
             dataitems)
         nos = self.get_err_message_nos(dataitemss)
-        return f'{code}-{name}-{depart}  {msg_prefix}: {msg}--->{nos}'
+        return f'{code}-{name}-{depart}-{msg_prefix}: {msg}--->{nos}'
     
     def get_err_message_sap(self,sap_itemss,msg):
         dataitems = sap_itemss[0]
@@ -282,7 +282,7 @@ class Operator(object):
         code, name, depart = self.get_employ_sap_code_name_depart_message_from_items(
             dataitems)
         nos = self.get_err_message_nos(sap_itemss)
-        return f'{self.conv_key(code)}-{name}-{depart}  {msg_prefix}: {msg}--->{nos}'
+        return f'{self.conv_key(code)}-{name}-{depart}-{msg_prefix}: {msg}--->{nos}'
 
     def get_err_message_prefix(self, typ):
         msg_prefix = '信息'
@@ -480,19 +480,41 @@ class MergeOperator(Operator):
         now = int(time.time())
         # 转换为其他日期格式,如:"%Y-%m-%d %H:%M:%S"
         timeStruct = time.localtime(now)
-        strTime = time.strftime("%Y-%m-%d-%H-%M-%S", timeStruct)
+        strTime = time.strftime("%Y-%m-%d-%H%M%S", timeStruct)
         err_file = f'数据核对结果-{strTime}.txt'
         if len(errs) == 0:
             with open(err_file, 'a') as f:
                 f.write('数据验证通过')
         else:
             # 增加按照二级机构切分得逻辑
-            for err in sorted(errs):
-                with open(err_file, 'a') as f:
-                    f.write(err)
-                    f.write('\n')
+            errs_dict = self.errs_list_to_map_by_depart(errs)
+            for k,ers in errs_dict.items():
+                err_file_path = f'{k}-{err_file}'
+                for e in ers:
+                    with open(err_file_path, 'a') as f:
+                        f.write(e)
+                        f.write('\n')
 
     
+    def errs_list_to_map_by_depart(self,errs):
+        errs_dict = dict()
+        for err in errs:
+            depart = self.get_depart_from_err(err)
+            if depart in errs_dict:
+                errs_dict.get(depart).append(err)
+            else:
+                dict_err = list()
+                dict_err.append(err)
+                errs_dict[depart] = dict_err
+            pass
+        return errs_dict
+
+    def get_depart_from_err(self,err):
+        full_depart = err.split('-')[2]
+        departs = full_depart.split('>')
+        if len(departs) > 1:
+            return departs[1]
+        return departs[0]
 
     def valdate(self,data_map,yhk_map,typ):
         typ_str = f'{self.get_yhk_typ_str(typ)}'

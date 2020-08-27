@@ -122,9 +122,9 @@ class TestSalaryReader(object):
         code,name,depart = op.get_employ_code_name_depart_message_from_items(dataitems[0])
         assert code == 'M73247'
         assert name == '张志容'
-        assert depart == r'马鞍山钢铁股份有限公司（总部）-资源分公司-第二回收分厂-回收作业区'
+        assert depart == r'马鞍山钢铁股份有限公司（总部）>资源分公司>第二回收分厂>回收作业区'
         errmsg = op.get_err_message(dataitems,'测试信息')
-        assert errmsg == f'{code}-{name}-{depart}  工资信息: 测试信息--->相关行号:  0行,'
+        assert errmsg == f'{code}-{name}-{depart}-工资信息: 测试信息--->相关行号:  0行,'
 
     def test_get_err_message_prefix(self):
         op = MergeOperator(SalaryConfig())
@@ -193,6 +193,14 @@ class TestSalaryReader(object):
     #     paths = op.get_tpl_file_paths(op.conf.get_tpl_root_folder_name(),'sap')
     #     assert paths is not None
     #     assert len(paths)==1
+
+    def test_get_depart_from_err(self):
+        op = MergeOperator(SalaryConfig())
+        op.set_period('202008')
+        depart = op.get_depart_from_err('046187-王彤-马钢（集团）控股有限公司(总部)>党委工作部（党委组织部、人力资源部）')
+        assert depart == r'党委工作部（党委组织部、人力资源部）'
+        depart = op.get_depart_from_err('046187-王彤-01')
+        assert depart == r'01'
         
 
     
