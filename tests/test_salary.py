@@ -17,10 +17,14 @@ from salary.app import SalarySupport
 class TestSalary(object):
     
 
-    def test_salary_support_run(self):
-        a = SalarySupport().run()
-        expected = 'salary_run'
-        assert a == expected
+    @mock.patch('builtins.input', side_effect=['202009'])
+    def test_salary_support_run(self,capsys):
+       with capsys.disabled():
+            s = SalarySupport()
+            a = s.run()
+            expected = '效验通过'
+            assert a == expected
+            
 
     def test_get_period_now(self):
         su = SalarySupport()

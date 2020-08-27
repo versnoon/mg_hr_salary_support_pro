@@ -213,6 +213,66 @@ class Operator(object):
             kvstr = kv
         return kvstr
 
+    def get_err_message(self, dataitemss, msg):
+        dataitems = dataitemss[0]
+        typ = dataitems.code
+        msg_prefix = self.get_err_message_prefix(typ)
+        code, name, depart = self.get_employ_code_name_depart_message_from_items(
+            dataitems)
+        nos = self.get_err_message_nos(dataitemss)
+        return f'{code}-{name}-{depart}  {msg_prefix}: {msg}--->{nos}'
+    
+    def get_err_message_sap(self,sap_itemss,msg):
+        dataitems = sap_itemss[0]
+        typ = dataitems.code
+        msg_prefix = self.get_err_message_prefix(typ)
+        code, name, depart = self.get_employ_sap_code_name_depart_message_from_items(
+            dataitems)
+        nos = self.get_err_message_nos(sap_itemss)
+        return f'{self.conv_key(code)}-{name}-{depart}  {msg_prefix}: {msg}--->{nos}'
+
+    def get_err_message_prefix(self, typ):
+        msg_prefix = '信息'
+        if typ == 'gz':
+            msg_prefix = f'工资{msg_prefix}'
+        elif typ == 'jj':
+            msg_prefix = f'奖金{msg_prefix}'
+        elif typ == 'yhk':
+            msg_prefix = f'银行卡{msg_prefix}'
+        elif typ == 'sap':
+            msg_prefix = f'SAP{msg_prefix}'
+        return msg_prefix
+
+    def get_err_message_nos(self, dataitemss):
+        nos = list()
+        nos.append('相关行号: ')
+        for dataitems in dataitemss:
+            nos.append(f'{str(dataitems.no)}行,')
+        return ' '.join(nos)
+
+    def get_yhk_typ_str(self,yhk_typ):
+        if yhk_typ == 'gz':
+            return '工资'
+        elif yhk_typ == 'jj':
+            return '奖金'
+        else:
+            return '未知'
+    def get_yhk_no(self, yhks,yhk_typ):
+        typ = f'{self.get_yhk_typ_str(yhk_typ)}卡'
+        for yhk in yhks:
+            yhk_item = self.get_item_by_colname(yhk, '卡用途')
+            if yhk_item is not None:
+                 if yhk_item.val.find(typ) != -1:
+                    yhk_item_no = self.get_item_by_colname(yhk, '卡号')
+                    if yhk_item_no is not None and len(yhk_item_no.val) > 0:
+                        return yhk_item_no.val
+                    else:
+                        return ''
+        return ''
+
+    def conv_key(self,key):
+        return self.conf.get_bw_code_from_sap_code(key)
+
 
 class GzOperator(Operator):
 
@@ -327,67 +387,13 @@ class MergeOperator(Operator):
             with open(err_file, 'a') as f:
                 f.write('数据验证通过')
         else:
+            # 增加按照二级机构切分得逻辑
             for err in sorted(errs):
                 with open(err_file, 'a') as f:
                     f.write(err)
                     f.write('\n')
 
-    def get_err_message(self, dataitemss, msg):
-        dataitems = dataitemss[0]
-        typ = dataitems.code
-        msg_prefix = self.get_err_message_prefix(typ)
-        code, name, depart = self.get_employ_code_name_depart_message_from_items(
-            dataitems)
-        nos = self.get_err_message_nos(dataitemss)
-        return f'{code}-{name}-{depart}  {msg_prefix}: {msg}--->{nos}'
     
-    def get_err_message_sap(self,sap_itemss,msg):
-        dataitems = sap_itemss[0]
-        typ = dataitems.code
-        msg_prefix = self.get_err_message_prefix(typ)
-        code, name, depart = self.get_employ_sap_code_name_depart_message_from_items(
-            dataitems)
-        nos = self.get_err_message_nos(sap_itemss)
-        return f'{self.conv_key(code)}-{name}-{depart}  {msg_prefix}: {msg}--->{nos}'
-
-    def get_err_message_prefix(self, typ):
-        msg_prefix = '信息'
-        if typ == 'gz':
-            msg_prefix = f'工资{msg_prefix}'
-        elif typ == 'jj':
-            msg_prefix = f'奖金{msg_prefix}'
-        elif typ == 'yhk':
-            msg_prefix = f'银行卡{msg_prefix}'
-        elif typ == 'sap':
-            msg_prefix = f'SAP{msg_prefix}'
-        return msg_prefix
-
-    def get_err_message_nos(self, dataitemss):
-        nos = list()
-        nos.append('相关行号: ')
-        for dataitems in dataitemss:
-            nos.append(f'{str(dataitems.no)}行,')
-        return ' '.join(nos)
-
-    def get_yhk_typ_str(self,yhk_typ):
-        if yhk_typ == 'gz':
-            return '工资'
-        elif yhk_typ == 'jj':
-            return '奖金'
-        else:
-            return '未知'
-    def get_yhk_no(self, yhks,yhk_typ):
-        typ = f'{self.get_yhk_typ_str(yhk_typ)}卡'
-        for yhk in yhks:
-            yhk_item = self.get_item_by_colname(yhk, '卡用途')
-            if yhk_item is not None:
-                 if yhk_item.val.find(typ) != -1:
-                    yhk_item_no = self.get_item_by_colname(yhk, '卡号')
-                    if yhk_item_no is not None and len(yhk_item_no.val) > 0:
-                        return yhk_item_no.val
-                    else:
-                        return ''
-        return ''
 
     def valdate(self,data_map,yhk_map,typ):
         typ_str = f'{self.get_yhk_typ_str(typ)}'
@@ -501,6 +507,5 @@ class MergeOperator(Operator):
         return errs
 
 
-    def conv_key(self,key):
-        return self.conf.get_bw_code_from_sap_code(key)
+   
 
