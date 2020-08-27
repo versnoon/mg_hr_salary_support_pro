@@ -509,10 +509,12 @@ class MergeOperator(Operator):
                     if gz_yf_item is not None:
                         yf += gz_yf_item.val
                         if gz_db_item.typ == 2:
-                            yf -= gz_db_item.val
+                            if gz_db_item.val !='':
+                                yf += gz_db_item.val
                         sf += gz_sf_item.val  
                         if gz_db_item.typ == 2:
-                            sf -= gz_jyjf_item.val 
+                            if gz_jyjf_item.val !='':
+                                sf -= gz_jyjf_item.val 
                 if k in jj_map:
                     jj_v = jj_map.get(k)
                     jj_yf_item = self.get_item_by_colname(jj_v[0], '应发')
