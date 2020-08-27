@@ -18,11 +18,13 @@ from salary.config import SalaryConfig
 class TestSalaryProcess(object):
 
     def test_gz_opreator_process(self):
-        proc = Process(GzOperator(SalaryConfig()))
+        proc = Process(GzOperator(SalaryConfig()),'202008')
         proc.process_validat()
         assert proc.name == '工资模板处理器' 
+        assert proc.operator.period == '202008'
 
     def test_merge_opreator_process(self):
-        proc = Process(MergeOperator(SalaryConfig()))
+        proc = Process(MergeOperator(SalaryConfig()),'202008')
         proc.process_validat()
         assert proc.name == '工资奖金模板处理器'
+        assert proc.operator.period == '202008'

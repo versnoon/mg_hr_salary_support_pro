@@ -12,9 +12,12 @@
 class Process(object):
 
 
-    def __init__(self,operator):
+    def __init__(self,operator,period):
         self.operator = operator
+        self.period = period
         self.name = self.operator.name
+        # 设置处理期间
+        self.operator.set_period(self.period)
 
     def process(self):
         datas = self.operator.loaddatas()

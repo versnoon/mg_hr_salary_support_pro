@@ -58,6 +58,9 @@ class Operator(object):
         assert config is not None
         self.conf = config
         self.logger = SalaryLogging(self.conf).getLogger()
+    
+    def set_period(self,period):
+        self.period = period
 
     def loaddatas(self):
         raise NotImplementedError
