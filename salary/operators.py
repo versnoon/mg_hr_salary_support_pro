@@ -74,6 +74,59 @@ class Operator(object):
     def writer(self):
         raise NotImplementedError
 
+    # 读取模板目录下所有文件
+    def batchloaddata(self,tpl_root_path,colnames_index=1, validable=True, code='gz'):
+        datas ,errs = list(),list()
+        paths = self.get_tpl_file_paths(tpl_root_path,code)
+        for file_path in paths:
+            ds,es = self.loaddata(file_path,colnames_index, validable, code)
+            datas.extend(ds)
+            errs.extend(es)
+        return datas,errs
+    
+    def get_tpl_file_paths(self,tpl_root_path,typ):
+        paths = list()
+        root = os.path.join(tpl_root_path,self.period,self.get_tpl_folder_path(typ))
+        for base_path,_,files in os.walk(root):
+            for file_name in files:
+                file_path = os.path.join(base_path,file_name)
+                if self.is_tpl(file_path,typ):
+                    paths.append(file_path)
+        return paths
+    
+    
+    def get_tpl_folder_path(self,typ):
+        folder_name = ''
+        if typ == 'gz':
+            folder_name = self.conf.get_tpl_gz_file_folder_name()
+        elif typ == 'jj':
+            folder_name = self.conf.get_tpl_jj_file_folder_name()
+        elif typ == 'yhk':
+            folder_name = self.conf.get_tpl_yhk_file_folder_name()
+        elif typ == 'sap':
+            folder_name = self.conf.get_tpl_sap_file_folder_name()
+        return self.get_file_path(folder_name)
+    
+    def is_tpl(self,file_path,typ):
+        ''' 通过文件后缀判断是否为模板
+            如果后缀与系统统计相同返回True 
+        '''
+        file_exts = file_path.rsplit('.',maxsplit=1)
+        if len(file_exts) != 2:
+            return False
+        file_ext = file_exts[1]
+        ext = ''
+        if typ == 'gz':
+            ext = self.conf.get_tpl_gz_file_ext()
+        elif typ == 'jj':
+            ext = self.conf.get_tpl_jj_file_ext()
+        elif typ == 'yhk':
+            ext = self.conf.get_tpl_yhk_file_ext()
+        elif typ == 'sap':
+            ext = self.conf.get_tpl_sap_file_ext()
+        return file_ext.lower() == ext.lower()
+
+
     def loaddata(self, tpl_file_path, colnames_index=1, validable=True, code='code'):
         assert self.period is not None
         assert self.period != ''
@@ -331,24 +384,29 @@ class MergeOperator(Operator):
         self.datas['sap'] = list()
 
     def loaddatas(self):
+
         # 读取工资模板
-        gz_tpl_path = self.get_file_path(self.conf.get_tpl_gz_filename())
-        gzs, _ = self.loaddata(gz_tpl_path, 1, False, 'gz')
+        gzs, _ = self.batchloaddata(self.conf.get_tpl_root_folder_name(),1,False,'gz')
+        # gz_tpl_path = self.get_file_path(self.conf.get_tpl_gz_filename())
+        # gzs, _ = self.loaddata(gz_tpl_path, 1, False, 'gz')
         if len(gzs) > 0:
             self.datas['gz'] = gzs
         # 读取奖金模板
-        jj_tpl_path = self.get_file_path(self.conf.get_tpl_jj_filename())
-        jjs, _ = self.loaddata(jj_tpl_path, 1, False, 'jj')
+        jjs, _ = self.batchloaddata(self.conf.get_tpl_root_folder_name(),1,False,'jj')
+        # jj_tpl_path = self.get_file_path(self.conf.get_tpl_jj_filename())
+        # jjs, _ = self.loaddata(jj_tpl_path, 1, False, 'jj')
         if len(jjs) > 0:
             self.datas['jj'] = jjs
         # 读取银行卡号
-        yhk_tpl_path = self.get_file_path(self.conf.get_tpl_yhk_filename())
-        yhks, _ = self.loaddata(yhk_tpl_path, 1, False, 'yhk')
+        yhks, _ = self.batchloaddata(self.conf.get_tpl_root_folder_name(),1,False,'yhk')
+        # yhk_tpl_path = self.get_file_path(self.conf.get_tpl_yhk_filename())
+        # yhks, _ = self.loaddata(yhk_tpl_path, 1, False, 'yhk')
         if len(yhks) > 0:
             self.datas['yhk'] = yhks
         # 读取SAP数据
-        sap_tpl_path = self.get_file_path(self.conf.get_tpl_sap_filename())
-        saps, _ = self.loaddata(sap_tpl_path, 1, False, 'sap')
+        saps,_ = self.batchloaddata(self.conf.get_tpl_root_folder_name(),1,False,'sap')
+        # sap_tpl_path = self.get_file_path(self.conf.get_tpl_sap_filename())
+        # saps, _ = self.loaddata(sap_tpl_path, 1, False, 'sap')
         if len(saps) > 0:
             self.datas['sap'] = saps
         return self.merge_valdator()
@@ -505,6 +563,10 @@ class MergeOperator(Operator):
         # 验证扣缴  
 
         return errs
+
+
+
+
 
 
    

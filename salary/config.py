@@ -63,19 +63,43 @@ class SalaryConfig(object):
     
     def get_logging_level(self):
         return self.get_config_val(contants.LOGGING_LEVEL_KEY_NAME)
+        
+    def get_tpl_gz_file_ext(self):
+        return self.get_config_val(contants.TPL_GZ_FILENAME_EXT_KEY_NAME)
 
+    def get_tpl_gz_file_folder_name(self):
+        return self.get_config_val(contants.TPL_GZ_FILENAME_KEY_NAME)
+    
     def get_tpl_gz_filename(self):
         return self.__get_tpl_filename(contants.TPL_GZ_FILENAME_KEY_NAME,contants.TPL_GZ_FILENAME_EXT_KEY_NAME)
     
     def get_tpl_jj_filename(self):
         return self.__get_tpl_filename(contants.TPL_JJ_FILENAME_KEY_NAME,contants.TPL_JJ_FILENAME_EXT_KEY_NAME)
+    
+    def get_tpl_jj_file_folder_name(self):
+        return self.get_config_val(contants.TPL_JJ_FILENAME_KEY_NAME)
+    
+    def get_tpl_jj_file_ext(self):
+        return self.get_config_val(contants.TPL_JJ_FILENAME_EXT_KEY_NAME)
 
     
     def get_tpl_yhk_filename(self):
         return self.__get_tpl_filename(contants.TPL_YHK_FILENAME_KEY_NAME,contants.TPL_YHK_FILENAME_EXT_KEY_NAME)
 
+    def get_tpl_yhk_file_folder_name(self):
+        return self.get_config_val(contants.TPL_YHK_FILENAME_KEY_NAME)
+    
+    def get_tpl_yhk_file_ext(self):
+        return self.get_config_val(contants.TPL_YHK_FILENAME_EXT_KEY_NAME)
+
     def get_tpl_sap_filename(self):
         return self.__get_tpl_filename(contants.TPL_SAP_FILENAME_KEY_NAME,contants.TPL_SAP_FILENAME_EXT_KEY_NAME)
+
+    def get_tpl_sap_file_folder_name(self):
+        return self.get_config_val(contants.TPL_SAP_FILENAME_KEY_NAME)
+    
+    def get_tpl_sap_file_ext(self):
+        return self.get_config_val(contants.TPL_SAP_FILENAME_EXT_KEY_NAME)
     
     def __get_tpl_filename(self,filename,flieext):
          return f'{self.get_config_val(filename)}.{self.get_config_val(flieext)}'

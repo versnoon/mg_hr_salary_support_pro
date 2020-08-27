@@ -9,6 +9,7 @@
 '''
 import os
 import pytest
+from pytest_mock import mock
 
 from salary.operators import Operator
 from salary.operators import GzOperator
@@ -165,6 +166,31 @@ class TestSalaryReader(object):
         yhk_no_str = op.get_yhk_no(dataitemss,'jj')
         assert len(yhk_no_str) == 0
         assert yhk_no_str == ''
+
+    def test_is_tpl(self):
+        op = MergeOperator(SalaryConfig())
+        op.set_period('202008')
+        assert op.is_tpl('工资数据.xls','gz') is True
+        assert op.is_tpl('奖金数据.xls','jj') is True
+        assert op.is_tpl('银行卡数据.xls','yhk') is True
+        assert op.is_tpl('SAP数据.xlsx','sap') is True
+
+    # def test_get_tpl_file_paths(self):
+    #     op = MergeOperator(SalaryConfig())
+    #     op.set_period('202008')
+    #     paths = op.get_tpl_file_paths(op.conf.get_tpl_root_folder_name(),'gz')
+    #     assert paths is not None
+    #     assert len(paths)==2
+    #     paths = op.get_tpl_file_paths(op.conf.get_tpl_root_folder_name(),'jj')
+    #     assert paths is not None
+    #     assert len(paths)==1
+    #     paths = op.get_tpl_file_paths(op.conf.get_tpl_root_folder_name(),'yhk')
+    #     assert paths is not None
+    #     assert len(paths)==1
+    #     paths = op.get_tpl_file_paths(op.conf.get_tpl_root_folder_name(),'sap')
+    #     assert paths is not None
+    #     assert len(paths)==1
+        
 
     
     
