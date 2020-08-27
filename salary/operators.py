@@ -462,7 +462,8 @@ class MergeOperator(Operator):
         errs = list()
         errs.extend(self.valdate(gz_map,yhk_map,'gz'))
         errs.extend(self.valdate(jj_map,yhk_map,'jj'))
-        errs.extend(self.valdate_sap(gz_map,jj_map,yhk_map,sap_map))
+        if len(sap_map)>0:
+            errs.extend(self.valdate_sap(gz_map,jj_map,yhk_map,sap_map))
         # 验证工资数据
         # 没有工资发放记录
         # 存在多条工资发放记录
