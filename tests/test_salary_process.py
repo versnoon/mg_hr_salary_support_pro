@@ -13,6 +13,7 @@
 from salary.process import  Process 
 from salary.operators import GzOperator
 from salary.operators import MergeOperator
+from salary.split_operator import SalaryTplSplit
 from salary.config import SalaryConfig
 
 class TestSalaryProcess(object):
@@ -27,4 +28,9 @@ class TestSalaryProcess(object):
         proc = Process(MergeOperator(SalaryConfig()),'202008')
         proc.process_validat()
         assert proc.name == '工资奖金模板处理器'
+        assert proc.operator.period == '202008'
+
+    def test_split_opreator_process(self):
+        proc = Process(SalaryTplSplit(SalaryConfig()),'202008')
+        proc.process_split()
         assert proc.operator.period == '202008'

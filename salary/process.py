@@ -32,7 +32,7 @@ class Process(object):
         return True
 
     def process_split(self):
-        datas,_ = self.operator.loaders()
+        datas,_ = self.operator.loaddatas()
         if len(datas) > 0:
             self.operator.writer(datas)
     
