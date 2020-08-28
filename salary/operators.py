@@ -640,7 +640,7 @@ class MergeOperator(Operator):
         
         for v in sap_keys:
             if v not in merge_keys:
-                errs.append(self.get_err_message_sap(vv,sap_map.get(v),f'无法找到对应得宝武EHR系统数据'))
+                errs.append(self.get_err_message_sap(None,sap_map[v],f'无法找到对应得宝武EHR系统数据'))
         
             
         # 验证应发
