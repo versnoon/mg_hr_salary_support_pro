@@ -27,4 +27,5 @@ tpl_code_column_name = '员工通行证'
 tpl_name_column_name = '员工姓名'
 tpl_depart_column_name = '机构'
 tpl_depart_column_other_name = '部门'
+tpl_vail_folder_name = '效验结果'
 

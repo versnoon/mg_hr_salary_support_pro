@@ -136,5 +136,8 @@ class SalaryConfig(object):
             if len(sap_code)>0 and  len(sap_code) <= 5: 
                 return 'M%05d' % int(sap_code)
             return sap_code
+
+    def get_tpl_vali_folder_name(self):
+        return self.get_config_val(contants.TPL_VALI_FOLDER_NAME_KEY_NAME)
     
     

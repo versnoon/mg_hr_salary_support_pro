@@ -488,8 +488,11 @@ class MergeOperator(Operator):
         else:
             # 增加按照二级机构切分得逻辑
             errs_dict = self.errs_list_to_map_by_depart(errs)
+            err_file_folder_path = os.path.join(os.getcwd(),self.conf.get_tpl_vali_folder_name(),self.period)
+            if not os.path.exists(err_file_folder_path):
+                os.makedirs(err_file_folder_path)
             for k,ers in errs_dict.items():
-                err_file_path = f'{k}-{err_file}'
+                err_file_path = os.path.join(err_file_folder_path,f'{k}-{err_file}')
                 for e in ers:
                     with open(err_file_path, 'a') as f:
                         f.write(e)
