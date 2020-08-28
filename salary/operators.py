@@ -10,7 +10,7 @@
 
 import os
 import time
-import unicodedata
+import shutil
 import xlrd
 from salary.config import SalaryConfig
 from salary.logging import SalaryLogging
@@ -275,12 +275,17 @@ class Operator(object):
         nos = self.get_err_message_nos(dataitemss)
         return f'{code}-{name}-{depart}-{msg_prefix}: {msg}--->{nos}'
     
-    def get_err_message_sap(self,sap_itemss,msg):
+    def get_err_message_sap(self,vv,sap_itemss,msg):
         dataitems = sap_itemss[0]
         typ = dataitems.code
         msg_prefix = self.get_err_message_prefix(typ)
-        code, name, depart = self.get_employ_sap_code_name_depart_message_from_items(
-            dataitems)
+        code, name, depart = '','',''
+        if vv is not None:
+            code, name, depart = self.get_employ_code_name_depart_message_from_items(
+            vv[0])
+        else:    
+            code, name, depart = self.get_employ_sap_code_name_depart_message_from_items(
+                dataitems)
         nos = self.get_err_message_nos(sap_itemss)
         return f'{self.conv_key(code)}-{name}-{depart}-{msg_prefix}: {msg}--->{nos}'
 
@@ -489,8 +494,9 @@ class MergeOperator(Operator):
             # 增加按照二级机构切分得逻辑
             errs_dict = self.errs_list_to_map_by_depart(errs)
             err_file_folder_path = os.path.join(os.getcwd(),self.conf.get_tpl_vali_folder_name(),self.period)
-            if not os.path.exists(err_file_folder_path):
-                os.makedirs(err_file_folder_path)
+            if  os.path.exists(err_file_folder_path):
+                shutil.rmtree(err_file_folder_path)
+            os.makedirs(err_file_folder_path)   
             for k,ers in errs_dict.items():
                 err_file_path = os.path.join(err_file_folder_path,f'{k}-{err_file}')
                 for e in ers:
@@ -558,16 +564,18 @@ class MergeOperator(Operator):
         sap_keys = set(sap_map.keys())
         errs = list()
         for k in merge_keys:
-            vv = gz_map.get(k)
+            gz_v = gz_map.get(k)
+            jj_v = jj_map.get(k)
+            sap_v = sap_map.get(k)
+            vv = gz_v
             if vv is None or len(vv) == 0:
-                vv = jj_map.get(k)
+                vv = jj_v
             if k not in sap_keys:
                 errs.append(self.get_err_message(vv,f'无法找到对应得SAP系统数据'))
             else:
                 yf = 0
                 sf = 0
                 if k in gz_map:
-                    gz_v = gz_map.get(k)
                     gz_yf_item = self.get_item_by_colname(gz_v[0], '应发')
                     gz_sf_item = self.get_item_by_colname(gz_v[0], '实发')
                     gz_db_item = self.get_item_by_colname(gz_v[0],'独生子女费')
@@ -582,13 +590,12 @@ class MergeOperator(Operator):
                             if gz_jyjf_item.val !='':
                                 sf -= gz_jyjf_item.val 
                 if k in jj_map:
-                    jj_v = jj_map.get(k)
                     jj_yf_item = self.get_item_by_colname(jj_v[0], '应发')
                     jj_sf_item = self.get_item_by_colname(jj_v[0],'实发')
                     if jj_yf_item is not None:
                         yf += jj_yf_item.val
                         sf += jj_sf_item.val
-                sap_v = sap_map.get(k)
+                
                 sap_yf = 0
                 sap_sf = 0
                 sap_yf_item =  self.get_item_by_colname(sap_v[0], '工资应发')
@@ -633,7 +640,7 @@ class MergeOperator(Operator):
         
         for v in sap_keys:
             if v not in merge_keys:
-                errs.append(self.get_err_message_sap(sap_map.get(v),f'无法找到对应得宝武EHR系统数据'))
+                errs.append(self.get_err_message_sap(vv,sap_map.get(v),f'无法找到对应得宝武EHR系统数据'))
         
             
         # 验证应发
@@ -672,7 +679,7 @@ class MergeOperator(Operator):
             errs.append(self.get_err_message(vv,f'{item_name}[sap名称{sap_item_name}]不匹配----宝武EHR数值：{item.val},SAP数值{sap_item.val}'))
             return
         if item is None and sap_item is not None  and sap_item.val!=0:
-            errs.append(self.get_err_message_sap(sap_vv,f'{item_name}[sap名称{sap_item_name}]不匹配----宝武EHR不存在,SAP数值{sap_item.val}'))
+            errs.append(self.get_err_message_sap(vv,sap_vv,f'{item_name}[sap名称{sap_item_name}]不匹配----宝武EHR不存在,SAP数值{sap_item.val}'))
             return 
 
     

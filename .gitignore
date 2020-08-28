@@ -12,3 +12,4 @@ dist
 *.txt
 # Ignore dynaconf secret files
 .secrets.*
+效验结果
