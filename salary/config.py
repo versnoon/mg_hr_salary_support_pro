@@ -139,5 +139,8 @@ class SalaryConfig(object):
 
     def get_tpl_vali_folder_name(self):
         return self.get_config_val(contants.TPL_VALI_FOLDER_NAME_KEY_NAME)
+
+    def tpl_split_file_folder_path(self):
+        return self.get_config_val(contants.TPL_SPLIT_FILE_FOLDER_PATH_KEY_NAME)
     
     

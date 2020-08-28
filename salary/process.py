@@ -30,4 +30,9 @@ class Process(object):
             self.operator.writer(datas,errs)
             return False
         return True
+
+    def process_split(self):
+        datas,_ = self.operator.loaders()
+        if len(datas) > 0:
+            self.operator.writer(datas)
     

@@ -29,3 +29,5 @@ tpl_depart_column_name = '机构'
 tpl_depart_column_other_name = '部门'
 tpl_vail_folder_name = '效验结果'
 
+tpl_split_file_folder_path = '模板切分'
+

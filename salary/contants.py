@@ -35,3 +35,6 @@ TPL_DEPART_COLUMN_NAME_KEY_NAME = 'tpl_depart_column_name'
 TPL_DEPART_COLUMN_OTHER_NAME_KEY_NAME = 'tpl_depart_column_other_name'
 TPL_VALI_FOLDER_NAME_KEY_NAME = 'tpl_vail_folder_name'
 
+# 切分文件目录
+TPL_SPLIT_FILE_FOLDER_PATH_KEY_NAME = 'tpl_split_file_folder_path'
+
